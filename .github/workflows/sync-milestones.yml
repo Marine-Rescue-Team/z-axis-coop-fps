@@ -1,0 +1,29 @@
+name: 마일스톤 동기화
+
+# Docs/milestones.yml(정본)을 GitHub 마일스톤에 반영합니다.
+on:
+  push:
+    branches: [dev, main]
+    paths:
+      - Docs/milestones.yml
+      - .github/scripts/sync_milestones.py
+      - .github/workflows/sync-milestones.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: sync-milestones
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install --quiet pyyaml
+      - run: python3 .github/scripts/sync_milestones.py
+        env:
+          GH_TOKEN: ${{ github.token }}
