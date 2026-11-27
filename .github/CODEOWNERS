@@ -4,7 +4,9 @@
 # 이 파일은 PR 규칙 검사(.github/scripts/pr_rules.py)가 읽는다.
 # 담당이 적히지 않은 폴더는 승인 없이 합칠 수 있다.
 
-/Client/ @ansirh
-# /Client/ 에 클라 2 아이디 추가 필요
-# /Server/ @서버담당아이디
-# /Planning/   @기획담당아이디
+# 클라 1, 클라 2
+/Client/   @AnsirH @lhwsam
+# 서버
+/Server/   @tnsgud9
+# 기획, 그래픽
+/Planning/ @pyc6269
