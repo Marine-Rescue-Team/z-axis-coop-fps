@@ -63,7 +63,7 @@ gh pr create --base dev --title "[#12] 플레이어 이동" --body "Refs #12"
 | `Server/` | 서버 |
 | `Planning/` | 기획 |
 
-- 실제 아이디는 `.github/CODEOWNERS`에 있습니다.
+- 실제 아이디는 `.github/CODEOWNERS`에 있습니다. 요청 티켓의 담당자 지정과 `@` 호출에 이 아이디를 씁니다.
 - 내 담당 폴더를 고친 PR은 승인 없이 합칩니다.
 - 남의 폴더를 고친 PR은 그 폴더 담당의 승인이 있어야 합쳐집니다.
 - 남의 폴더에서 필요한 일은 직접 고치지 말고 요청 티켓을 만듭니다. 요청받는 사람을 담당자로 지정하고 본문에서 `@아이디`로 부릅니다. 그래야 알림이 갑니다.
@@ -77,19 +77,32 @@ gh issue create --title "<요청 제목>" --assignee <아이디> --body "@<아�
 
 ## 5. 티켓 상태와 완료
 
-보드(GitHub Projects)의 칸은 `할 일` → `진행 중` → `dev 확인 중` → `완료`입니다.
+보드는 조직의 GitHub Projects 1번입니다: https://github.com/orgs/Marine-Rescue-Team/projects/1
+칸(Status)은 `Todo` → `In Progress` → `Verify on dev` → `Done`입니다.
 
-1. 티켓을 만들면 `할 일`
-2. 작업을 시작하면 `진행 중`
-3. PR이 dev에 합쳐지면 `dev 확인 중`. PR을 올린 사람이 dev에서 실행해 완료 조건을 확인합니다.
-4. 확인이 끝나면 티켓을 닫습니다. 닫으면 보드에서 `완료`가 됩니다.
+1. 티켓을 만들면 자동으로 보드에 들어와 `Todo`
+2. 작업을 시작하면 `In Progress`
+3. PR이 dev에 합쳐지면 `Verify on dev`. PR을 올린 사람이 dev에서 실행해 완료 조건을 확인합니다.
+4. 확인이 끝나면 티켓을 닫습니다. 닫으면 보드에서 `Done`이 됩니다.
 
 ```
 gh issue close 12 --comment "dev에서 확인 완료"
 ```
 
-- 확인에서 문제가 나오면 티켓을 닫지 않고 `진행 중`으로 되돌려 고칩니다.
+- 확인에서 문제가 나오면 티켓을 닫지 않고 `In Progress`로 되돌려 고칩니다.
 - 사람의 확인 없이 티켓을 닫지 않습니다.
+- 카드를 `Done` 칸으로 옮기면 티켓이 닫힙니다. 확인이 끝나지 않은 티켓은 `Done`으로 옮기지 않습니다. 잘못 닫았다면 다시 열고 칸을 되돌립니다.
+
+칸을 옮기는 명령 (`gh auth refresh -s project`로 권한을 한 번 추가해야 합니다):
+
+```
+gh project field-list 1 --owner Marine-Rescue-Team --format json   # Status 필드 id와 칸별 option id
+gh project item-list 1 --owner Marine-Rescue-Team --format json    # 티켓의 item id
+gh project item-edit --project-id <프로젝트 id> --id <item id> \
+  --field-id <Status 필드 id> --single-select-option-id <칸 option id>
+```
+
+프로젝트 id는 `gh project view 1 --owner Marine-Rescue-Team --format json`에서 얻습니다.
 
 ## 6. 마일스톤
 
