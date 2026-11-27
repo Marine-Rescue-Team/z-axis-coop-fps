@@ -6,6 +6,7 @@
 | [02-game-design.md](02-game-design.md) | 게임 기획: 가져오는 시스템, 새로 만드는 것, 맵 변형, 미정 항목 |
 | [milestones.yml](milestones.yml) | **마일스톤 정본.** 단계별 기간과 통과 기준. 병합되면 GitHub 마일스톤에 자동 반영 |
 | [03-wbs-draft.md](03-wbs-draft.md) | 작업 분해(WBS) 초안, 범위 조정 순서 |
+| [workflow/](workflow) | **작업 방식 안내**(`index.html`). 폴더 담당, 브랜치, 티켓 처리 순서, 다른 담당에게 요청하는 법 |
 | [intro-page/](intro-page) | 소개 페이지(`index.html`). 대회와 기획 소개, 화면 예시 그림 |
 
 ## 마일스톤은 어디서 보나

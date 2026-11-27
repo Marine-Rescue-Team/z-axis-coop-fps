@@ -20,6 +20,7 @@ Meshy **Z-Axis Awards** 게임 트랙 출품작. 세 명이 거점의 문을 지
 2. [게임 기획](Docs/02-game-design.md): 무엇을 만드는지, 아직 정해지지 않은 것
 3. [GitHub 마일스톤](https://github.com/Marine-Rescue-Team/z-axis-coop-fps/milestones): 단계별 일정과 통과 기준. 고칠 때는 [`Docs/milestones.yml`](Docs/milestones.yml)
 4. [작업 분해(WBS) 초안](Docs/03-wbs-draft.md): 단계별로 필요한 작업을 미리 나눠 본 참고 목록
+5. [작업 방식 안내](Docs/workflow/index.html): 폴더 담당, 브랜치, 티켓으로 일하는 순서. 내려받아 브라우저로 엽니다
 
 ## 팀
 
@@ -37,4 +38,4 @@ Meshy **Z-Axis Awards** 게임 트랙 출품작. 세 명이 거점의 문을 지
 - 프로젝트 이름, 세계관과 캐릭터 컨셉
 - 맵 변형의 구체적인 방식과 횟수
 - Unity 버전, 멀티플레이 방식, 서버 기술
-- 브랜치와 커밋 규칙, Git LFS 사용 여부 (WBS 0.3.1)
+- Git LFS 사용 여부
