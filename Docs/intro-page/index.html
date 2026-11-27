@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Z-Axis 협동 FPS 팀 모집</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* 레이아웃: 한 줄 기둥(본문 720px) + 게임 화면만 넓게. 색은 해질녘 성벽(남색) 위에 거점의 불빛(주황), 지형 변동은 청록 하나로만 표시 */
+:root{
+  color-scheme: dark;
+  --night:#161a24;
+  --wall:#20263a;
+  --stone:#2c3348;
+  --line:#3b445c;
+  --paper:#ece7dc;
+  --dim:#a4a9b8;
+  --ember:#ff8a4c;
+  --shift:#5ed6c6;
+  --danger:#f0566a;
+  --display:"Black Han Sans","IBM Plex Sans KR",system-ui,sans-serif;
+  --body:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--night);color:var(--paper);font-family:var(--body);font-size:16px;line-height:1.7;word-break:keep-all}
+a{color:var(--ember)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--shift);outline-offset:3px}
+.col{max-width:720px;margin:0 auto;padding:0 20px}
+.wide{max-width:980px;margin:0 auto;padding:0 20px}
+h1,h2{font-family:var(--display);font-weight:400;text-wrap:balance;margin:0}
+h1{font-size:clamp(34px,8.4vw,60px);line-height:1.12;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--shift)}
+h2{font-size:clamp(25px,5.6vw,34px);line-height:1.2;margin-bottom:14px}
+h3{font-size:17px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 14px}
+section{padding:44px 0;border-top:1px solid var(--line)}
+.kicker{font-size:13px;font-weight:600;letter-spacing:.12em;color:var(--ember);margin:0 0 12px}
+.lead{font-size:18px;color:var(--paper)}
+.dim{color:var(--dim)}
+.small{font-size:14px;color:var(--dim)}
+
+header{padding:52px 0 40px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:28px}
+.facts div{background:var(--wall);padding:14px 16px}
+.facts b{display:block;font-family:var(--display);font-weight:400;font-size:22px;line-height:1.25;font-variant-numeric:tabular-nums}
+.facts span{font-size:13px;color:var(--dim)}
+
+.rows{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);margin:18px 0}
+.rows>div{background:var(--wall);padding:13px 16px;display:grid;grid-template-columns:128px 1fr;gap:12px}
+.rows dt,.rows .k{color:var(--dim);font-size:14px}
+@media (max-width:480px){.rows>div{grid-template-columns:1fr;gap:2px}}
+
+ul.plain{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+ul.plain li{padding-left:18px;position:relative}
+ul.plain li::before{content:"";position:absolute;left:0;top:.72em;width:8px;height:2px;background:var(--ember)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:18px 0}
+.box{background:var(--wall);border:1px solid var(--line);padding:18px}
+.box.new{border-color:var(--shift)}
+.tag{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.06em;padding:2px 8px;border:1px solid currentColor;margin-bottom:10px}
+.tag.keep{color:var(--dim)}.tag.make{color:var(--ember)}.tag.add{color:var(--shift)}
+
+.bar{margin:12px 0}
+.bar .top{display:flex;justify-content:space-between;gap:12px;font-weight:600}
+.bar .top span:last-child{font-variant-numeric:tabular-nums}
+.track{height:10px;background:var(--stone);margin:6px 0}
+.track i{display:block;height:100%;background:var(--ember)}
+.bar.alt .track i{background:var(--shift)}
+.bar p{font-size:14px;color:var(--dim);margin:0}
+
+figure{margin:22px 0 0}
+.screen{border:1px solid var(--line);background:#0e1119;display:block;width:100%;height:auto}
+figcaption{font-size:14px;color:var(--dim);margin-top:10px}
+ol.legend{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px 24px;counter-reset:n}
+ol.legend li{counter-increment:n;display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-size:15px}
+ol.legend li::before{content:counter(n);width:26px;height:26px;border-radius:50%;background:var(--paper);color:var(--night);font-weight:600;font-size:14px;display:grid;place-items:center;margin-top:1px}
+ol.legend li.n::before{background:var(--shift)}
+ol.legend b{font-weight:600}
+
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 12px}
+.seg button{font:inherit;font-weight:600;font-size:15px;color:var(--paper);background:var(--wall);border:1px solid var(--line);padding:9px 16px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--shift);border-color:var(--shift);color:var(--night)}
+#map[data-phase="1"] .p2,#map[data-phase="1"] .p3,
+#map[data-phase="2"] .p1,#map[data-phase="2"] .p3,
+#map[data-phase="3"] .p1,#map[data-phase="3"] .p2{display:none}
+.phases{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
+.phases li{padding:10px 14px;border-left:3px solid var(--line);color:var(--dim);font-size:15px}
+.phases li.on{border-left-color:var(--shift);color:var(--paper);background:var(--wall)}
+.phases b{font-weight:600}
+
+ol.flow{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+ol.flow li{background:var(--wall);padding:12px 16px;display:grid;grid-template-columns:86px 1fr;gap:12px;font-size:15px}
+ol.flow li b{font-weight:600;font-variant-numeric:tabular-nums}
+ol.flow li.s{background:#1c3238}
+ol.flow li.s b{color:var(--shift)}
+ol.flow li.b b{color:var(--danger)}
+
+svg text{font-family:var(--body)}
+.note{border:1px dashed var(--line);padding:14px 16px;font-size:14px;color:var(--dim);margin-top:18px}
+footer{padding:36px 0 60px;border-top:1px solid var(--line);font-size:14px;color:var(--dim)}
+@media (prefers-reduced-motion:no-preference){.pulse{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{opacity:.45}}}
+
+/* ---- 탭 ---- */
+.topbar{position:sticky;top:0;z-index:5;background:var(--night);border-bottom:1px solid var(--line)}
+.topbar .in{max-width:980px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-family:var(--display);font-size:16px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;gap:4px;flex:none}
+.tabs a{display:block;padding:14px 14px 11px;color:var(--dim);text-decoration:none;font-weight:600;font-size:16px;border-bottom:3px solid transparent}
+.tabs a[aria-current="page"]{color:var(--paper);border-bottom-color:var(--ember)}
+.panel[hidden]{display:none}
+/* ---- 마일스톤 ---- */
+header.col{padding:52px 20px 40px}
+header.col.mhead{padding:36px 20px 8px}
+.mhead h1{font-size:clamp(30px,7vw,46px)}
+.badge{display:inline-block;font-family:var(--body);font-size:12px;font-weight:600;color:var(--night);background:var(--ember);padding:1px 8px;margin-left:8px;vertical-align:2px;white-space:nowrap}
+.badge[hidden]{display:none}
+.risk{display:inline-block;font-size:12px;font-weight:600;color:var(--danger);border:1px solid var(--danger);padding:0 6px;margin-left:8px;vertical-align:1px;white-space:nowrap}
+.axis{position:relative;height:20px;font-size:12px;color:var(--dim);margin-top:16px}
+.axis span{position:absolute;top:0;padding-left:5px;border-left:1px solid var(--line);line-height:20px}
+.axis .td{border-left-color:var(--paper);color:var(--paper);font-weight:600;background:var(--night);padding-right:4px;z-index:1}
+ol.gantt{list-style:none;margin:0;padding:0;display:grid;gap:2px;--today:-10%}
+.grow{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 0 12px;color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
+.grow:hover .gl{color:var(--ember)}
+.gl{font-weight:600}.gl b{font-family:var(--display);font-weight:400;margin-right:8px;color:var(--ember)}
+.gd{font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap;align-self:center}
+.gt{grid-column:1/-1;position:relative;height:14px;background:var(--stone);
+  background-image:linear-gradient(var(--line),var(--line)),linear-gradient(var(--line),var(--line));background-size:1px 100%;background-repeat:no-repeat;background-position:8.33% 0,60% 0}
+.gt i{position:absolute;top:0;bottom:0;background:var(--dim)}
+.grow.now .gt i{background:var(--ember)}
+.grow.done .gt i{background:var(--dim);opacity:.4}
+.grow.done .gl{color:var(--dim)}
+.grow.always .gt{height:6px}.grow.always .gt i{background:var(--shift);opacity:.7}
+.has-today .gt::after{content:"";position:absolute;top:-4px;bottom:-4px;left:var(--today);width:2px;background:var(--paper)}
+.hint{font-size:14px;color:var(--dim);margin:10px 0 0}
+.wtools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 6px}
+.wtools .lab{font-size:14px;color:var(--dim);margin-right:2px}
+.chip{font:inherit;font-size:14px;font-weight:600;color:var(--paper);background:var(--wall);border:1px solid var(--line);padding:6px 14px;cursor:pointer;min-height:44px}
+.chip[aria-pressed="true"]{background:var(--paper);color:var(--night);border-color:var(--paper)}
+.chip.ghost{background:none;margin-left:auto}
+.jump{display:inline-block;padding:13px 0;color:var(--ember);font-weight:600}
+.hint.j{margin-top:0}
+.riskn{margin:10px 0 0;font-size:14px;color:var(--danger)}
+.fl{color:var(--shift);font-weight:600}
+dl.roles{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:14px 0 0;font-size:14px;color:var(--dim)}
+dl.roles dt{margin:0}dl.roles dd{margin:0}
+.code{font-variant-numeric:tabular-nums;color:var(--dim);font-size:13px}
+.code.big{font-family:var(--display);font-size:20px;color:var(--paper);min-width:20px}
+.own{font-size:12px;font-weight:600;padding:1px 8px;border:1px solid currentColor;white-space:nowrap;align-self:start;margin-top:3px}
+.o-k2{color:var(--night);background:var(--paper);border-color:var(--paper)}
+.o-l{color:var(--ember)}.o-c{color:var(--paper)}.o-s{color:var(--shift)}.o-a{color:var(--dim)}
+details.ms{border:1px solid var(--line);background:var(--wall);margin-top:8px;scroll-margin-top:64px}
+details.ms.now{border-color:var(--ember)}
+details.ms>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:baseline;padding:14px 44px 14px 16px;position:relative}
+details.ms>summary::-webkit-details-marker{display:none}
+details.ms>summary::after{content:"";position:absolute;right:18px;top:22px;width:9px;height:9px;border-right:2px solid var(--dim);border-bottom:2px solid var(--dim);transform:rotate(45deg)}
+details.ms[open]>summary::after{transform:rotate(-135deg);top:26px}
+.wn{font-weight:600}.wn b{font-family:var(--display);font-weight:400;margin-right:8px;color:var(--ember)}
+.wd{font-size:13px;color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+@media (max-width:520px){details.ms>summary{grid-template-columns:1fr}}
+.msb{padding:0 16px 14px;border-top:1px solid var(--line)}
+.gate{margin:14px 0 4px;padding:10px 12px;background:var(--night);border-left:3px solid var(--ember);font-size:15px}
+.gate b{display:block;font-size:12px;letter-spacing:.06em;color:var(--ember)}
+.pk h4{font-size:15px;font-weight:600;margin:16px 0 4px;display:flex;gap:10px;align-items:baseline}
+.pk ul{list-style:none;margin:0;padding:0}
+.pk li{display:grid;grid-template-columns:44px 1fr auto;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:15px;align-items:baseline}
+.pk li small{display:block;font-size:13px;color:var(--dim)}
+.pk[hidden],.pk li[hidden]{display:none}
+.empty{font-size:15px;color:var(--dim);padding:14px 0 2px;margin:0}
+.empty[hidden]{display:none}
+ol.cut{margin:14px 0 0;padding-left:22px;display:grid;gap:6px}
+</style>
+</head>
+<body>
+
+<nav class="topbar" aria-label="페이지 탭"><div class="in">
+  <span class="brand">Z-Axis 협동 FPS</span>
+  <div class="tabs">
+    <a href="#plan" data-tab="plan" aria-current="page">기획</a>
+    <a href="#milestones" data-tab="milestones">마일스톤</a>
+  </div>
+</div></nav>
+<main>
+<div class="panel" id="panel-plan">
+
+<header class="col">
+  <p class="kicker">Z-AXIS AWARDS · 게임 트랙 · 팀원 모집</p>
+  <h1>문을 지키는 3인 협동 FPS,<br>싸우는 도중 <em>맵이 바뀐다</em></h1>
+  <p class="lead" style="margin-top:18px">Meshy가 여는 Z-Axis Awards 게임 트랙에 함께 나갈 팀원을 찾습니다. 오버워치의 협동 모드 「정켄슈타인의 복수」가 가진 방어전 구조를 뼈대로 삼고, 세계관과 캐릭터와 맵은 전부 새로 만듭니다.</p>
+  <div class="facts">
+    <div><b>1월 25일 08:59</b><span>제출 마감 (한국 시간)</span></div>
+    <div><b>$5,000</b><span>게임 트랙 금상 상금</span></div>
+    <div><b>4명</b><span>클라이언트 2, 기획·그래픽 1, 서버 1</span></div>
+    <div><b>약 8주</b><span>남은 개발 기간</span></div>
+  </div>
+</header>
+
+<section><div class="col">
+  <p class="kicker">01 · 대회</p>
+  <h2>Z-Axis Awards는 어떤 대회인가</h2>
+  <p>AI 3D 생성 도구 Meshy가 주최하는 3D 창작 공모전입니다. 총상금은 $300,000이고 게임, 3D 프린팅, 영상, 보드게임, XR, 로보틱스 여섯 트랙으로 나뉩니다. 우리는 <b>게임 트랙</b>에 나갑니다. 대상은 AI 기반 3D로 만든 플레이 가능한 게임, 데모, 모드, DLC입니다.</p>
+  <div class="rows">
+    <div><span class="k">접수 기간</span><span>2026년 11월 17일 ~ 2027년 1월 24일 23:59 UTC<br><span class="small">한국 시간으로 1월 25일 오전 8:59</span></span></div>
+    <div><span class="k">심사</span><span>1차 검토 1월 25~29일, 최종 심사 2월 1~14일</span></div>
+    <div><span class="k">발표</span><span>2월 17일 전후. 시상식은 GDC 2027 기간에 현장 개최</span></div>
+    <div><span class="k">참가 자격</span><span>만 18세 이상. 팀 참가 가능, 참가비 없음. 회사나 단체 명의로는 출품 불가</span></div>
+    <div><span class="k">팀 상금</span><span>팀 대표 한 명이 출품하고 상금을 받아 팀원에게 나눔</span></div>
+  </div>
+
+  <h3 style="margin-top:26px">상을 받는 길은 세 가지, 한 작품으로 모두 노릴 수 있음</h3>
+  <div class="rows">
+    <div><span class="k">게임 트랙상</span><span>금 $5,000 · 은 $3,000 · 동 $1,000 · 4~10위 $300<br><span class="small">금·은·동에는 시상식 초청과 여비 최대 $1,000, Meshy 연간 이용권이 따라옴</span></span></div>
+    <div><span class="k">Best Use of Meshy</span><span>1위 $5,000 · 2위 $3,000 · 3위 $1,000<br><span class="small">Meshy를 핵심적으로 쓴 작품. 작업 화면 같은 사용 증빙 필요</span></span></div>
+    <div><span class="k">제작 과정 영상</span><span>승인되면 $40, 조회수에 따라 최대 $5,000까지. 1인당 영상 10개 인정<br><span class="small">조회수는 1월 31일에 집계. 전체 재원 $150,000이 소진되면 종료</span></span></div>
+  </div>
+</div></section>
+
+<section><div class="col">
+  <p class="kicker">02 · 제출</p>
+  <h2>무엇을 내야 하나</h2>
+  <p>빌드 형식, 플랫폼, 엔진에 대한 제한은 규정에 없습니다. 플레이 링크가 선택 항목이라 <b>데모 영상이 사실상 본 제출물</b>입니다.</p>
+  <div class="two">
+    <div class="box">
+      <span class="tag make">필수</span>
+      <ul class="plain">
+        <li>제목, 트랙 선택, 커버 이미지, 팀원 이름</li>
+        <li>데모 영상 공개 링크(YouTube, Vimeo, Bilibili) 또는 이미지</li>
+        <li>설명문: 어떻게 플레이하는지, 작업 과정, AI와 3D를 어디에 썼는지</li>
+        <li>사용한 AI 도구와 제작 도구 신고</li>
+      </ul>
+    </div>
+    <div class="box">
+      <span class="tag keep">선택</span>
+      <ul class="plain">
+        <li>플레이 가능한 링크</li>
+        <li>모델 파일 다운로드 링크</li>
+        <li>작업 과정 스크린샷</li>
+        <li>공개 SNS 게시물</li>
+      </ul>
+    </div>
+  </div>
+  <h3>지켜야 할 조건</h3>
+  <ul class="plain">
+    <li>핵심 3D 에셋 하나 이상(모델, 텍스처, 리깅, 애니메이션)을 AI로 만들거나 보조해야 함. 최소 비율은 없고 Meshy가 아닌 도구도 가능</li>
+    <li>팀의 창작물이어야 하고, 다른 프랜차이즈의 캐릭터·브랜드·로고를 허락 없이 쓰면 실격될 수 있음</li>
+    <li>완성된 형태의 작품이어야 함. 모델 하나나 에셋 묶음은 대상이 아님</li>
+  </ul>
+</div></section>
+
+<section><div class="col">
+  <p class="kicker">03 · 평가</p>
+  <h2>어떻게 평가받나</h2>
+  <h3>게임 트랙상</h3>
+  <div class="bar"><div class="top"><span>창의성</span><span>40%</span></div><div class="track"><i style="width:40%"></i></div><p>우리의 답: 싸우는 도중 맵 구조가 바뀌는 방어전</p></div>
+  <div class="bar"><div class="top"><span>완성도</span><span>30%</span></div><div class="track"><i style="width:30%"></i></div><p>우리의 답: 맵 하나에 집중해 조작감과 한 판의 흐름을 다듬기</p></div>
+  <div class="bar"><div class="top"><span>AI 혁신</span><span>30%</span></div><div class="track"><i style="width:30%"></i></div><p>우리의 답: 아군, 적, 보스, 맵 소품을 AI 3D 파이프라인으로 제작하고 과정을 기록</p></div>
+  <p class="small">동점이면 창의성 점수가 높은 쪽이 이깁니다.</p>
+
+  <h3 style="margin-top:26px">Best Use of Meshy</h3>
+  <div class="bar alt"><div class="top"><span>핵심 역할</span><span>50%</span></div><div class="track"><i style="width:50%"></i></div></div>
+  <div class="bar alt"><div class="top"><span>독창성</span><span>30%</span></div><div class="track"><i style="width:30%"></i></div></div>
+  <div class="bar alt"><div class="top"><span>전체 품질</span><span>20%</span></div><div class="track"><i style="width:20%"></i></div></div>
+</div></section>
+
+<section><div class="col">
+  <p class="kicker">04 · 기획</p>
+  <h2>무엇을 만드나</h2>
+  <p class="lead">세 명이 좁은 전장에서 거점의 문을 지킵니다. 적은 웨이브로 몰려오고 중간중간 보스가 끼어듭니다. 문이 부서지거나 모두 쓰러지면 집니다.</p>
+  <div class="two">
+    <div class="box">
+      <span class="tag keep">레퍼런스에서 가져오는 시스템</span>
+      <ul class="plain">
+        <li>협동 방어전, 일인칭 시점 (레퍼런스는 4인, 우리는 3인)</li>
+        <li>한 구역에서 문 하나를 지키는 방어전</li>
+        <li>웨이브마다 강해지는 적과 순서대로 등장하는 보스</li>
+        <li>일반 적 2종: 문 앞에서 자폭하는 돌진형, 플레이어를 쏘는 원거리형</li>
+        <li>캐릭터마다 다른 무기, 스킬, 궁극기</li>
+        <li>쓰러진 동료 부활, 난이도 단계</li>
+      </ul>
+    </div>
+    <div class="box">
+      <span class="tag make">새로 만드는 것</span>
+      <ul class="plain">
+        <li>세계관</li>
+        <li>아군 캐릭터의 컨셉과 스킬</li>
+        <li>적과 보스의 컨셉과 스킬</li>
+        <li>맵</li>
+      </ul>
+    </div>
+  </div>
+  <h3>캐릭터 규모: 총 6명</h3>
+  <div class="rows">
+    <div><span class="k">플레이어 캐릭터</span><span>3명. 3인 협동에서 한 명씩 맡는다</span></div>
+    <div><span class="k">보스 캐릭터</span><span>3명. 한 판에 순서대로 등장한다</span></div>
+  </div>
+  <div class="box new">
+    <span class="tag add">추가하는 기능</span>
+    <h3>플레이 도중 맵의 구조가 바뀐다</h3>
+    <p style="margin:0">레퍼런스는 맵이 좁고 고정되어 있어 판마다 비슷하게 흘러간다는 한계가 있습니다. 같은 크기의 맵 안에서 통로와 엄폐물과 고저차가 바뀌면, 맵을 넓히지 않고도 한 판 안에 여러 국면을 만들 수 있습니다. 구체적인 변형 방식은 아직 정하지 않았고 팀과 함께 확정합니다.</p>
+  </div>
+</div></section>
+
+<section>
+  <div class="col">
+    <p class="kicker">05 · 최종 모습</p>
+    <h2>완성되면 이런 화면이 된다</h2>
+    <p>아래 그림은 모두 설명을 위해 직접 그린 예시입니다. 캐릭터 모습과 수치는 임시이고, 화면 구성과 한 판의 흐름을 보여주는 용도입니다.</p>
+  </div>
+  <div class="wide">
+    <figure>
+      <svg class="screen" viewBox="0 0 640 360" role="img" aria-label="일인칭 전투 화면 예시. 세 통로에서 적이 몰려오고 화면 위에 거점 내구도와 보스 체력, 지형 변동 예고가 표시된다.">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#151b2e"/><stop offset="1" stop-color="#4a3440"/></linearGradient>
+          <linearGradient id="lane" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8a4c" stop-opacity=".0"/><stop offset="1" stop-color="#ff8a4c" stop-opacity=".16"/></linearGradient>
+          <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#1a2030"/><rect width="3" height="8" fill="#5ed6c6" opacity=".55"/></pattern>
+          <symbol id="grunt" viewBox="0 0 20 40"><rect x="4" y="12" width="12" height="18" rx="4" fill="#0d1018"/><circle cx="10" cy="7" r="6" fill="#0d1018"/><rect x="5" y="29" width="4" height="11" fill="#0d1018"/><rect x="11" y="29" width="4" height="11" fill="#0d1018"/><circle cx="10" cy="7" r="2" fill="#f0566a"/></symbol>
+        </defs>
+        <rect width="640" height="360" fill="url(#sky)"/>
+        <!-- 먼 성벽 -->
+        <rect x="0" y="96" width="640" height="100" fill="#20263a"/>
+        <path d="M0 96h640v-10h-30v10h-40v-10h-30v10h-40v-10h-30v10h-40v-10h-30v10h-40v-10h-30v10h-40v-10h-30v10h-40v-10h-30v10h-40v-10h-30v10h-40v-10h-30v10H0z" fill="#20263a"/>
+        <!-- 통로 3개 -->
+        <path d="M70 196v-52a32 32 0 0 1 64 0v52z" fill="#3d2b33"/>
+        <rect x="284" y="126" width="72" height="70" fill="#3d2b33"/>
+        <rect x="506" y="134" width="64" height="62" fill="url(#hatch)"/>
+        <!-- 바닥 -->
+        <rect x="0" y="196" width="640" height="164" fill="#2c3348"/>
+        <g stroke="#3b445c" stroke-width="1"><path d="M320 196 0 330M320 196 120 360M320 196 320 360M320 196 520 360M320 196 640 330M0 240h640M0 290h640"/></g>
+        <path d="M70 196h64l60 164H-40z" fill="url(#lane)"/>
+        <path d="M284 196h72l70 164H214z" fill="url(#lane)"/>
+        <!-- 엄폐물 -->
+        <rect x="180" y="226" width="62" height="30" fill="#20263a" stroke="#3b445c"/>
+        <rect x="430" y="248" width="80" height="38" fill="#20263a" stroke="#3b445c"/>
+        <!-- 보스 -->
+        <g transform="translate(320 150)"><path d="M-22 46v-34l-10-16 16 4 6-16h20l6 16 16-4-10 16v34z" fill="#0d1018"/><circle cx="0" cy="8" r="6" fill="#ff8a4c" class="pulse"/></g>
+        <!-- 자폭 돌진형 -->
+        <use href="#grunt" x="86" y="170" width="16" height="32"/><use href="#grunt" x="110" y="180" width="20" height="40"/>
+        <use href="#grunt" x="140" y="206" width="28" height="56"/><use href="#grunt" x="258" y="196" width="24" height="48"/>
+        <use href="#grunt" x="372" y="204" width="28" height="56"/><use href="#grunt" x="232" y="232" width="38" height="76"/>
+        <!-- 원거리형 (성벽 위) -->
+        <g transform="translate(206 74)"><rect x="-7" y="6" width="14" height="18" fill="#0d1018"/><circle r="7" fill="#0d1018"/><circle r="2.4" fill="#5ed6c6"/></g>
+        <path d="M208 78 300 300" stroke="#5ed6c6" stroke-width="2" opacity=".7"/>
+        <!-- 무기 -->
+        <path d="M640 360V292l-92-22-62 14 8 20 60-6 50 62z" fill="#0d1018"/>
+        <path d="M486 284l62-14 8 6-62 14z" fill="#3b445c"/>
+        <!-- 조준점 -->
+        <g stroke="#ece7dc" stroke-width="2"><path d="M320 168v8M320 192v8M304 184h8M328 184h8"/></g>
+        <circle cx="320" cy="184" r="1.6" fill="#ece7dc"/>
+
+        <!-- HUD: 상단 -->
+        <rect x="205" y="12" width="230" height="46" fill="#0e1119" opacity=".82"/>
+        <text x="216" y="29" font-size="12" fill="#a4a9b8">거점 내구도</text><text x="424" y="29" font-size="12" fill="#ece7dc" text-anchor="end" font-weight="600">68%</text>
+        <rect x="216" y="35" width="208" height="7" fill="#2c3348"/><rect x="216" y="35" width="141" height="7" fill="#ff8a4c"/>
+        <text x="320" y="54" font-size="10" fill="#a4a9b8" text-anchor="middle">웨이브 7</text>
+        <!-- 보스 체력 -->
+        <rect x="230" y="68" width="180" height="20" fill="#0e1119" opacity=".82"/>
+        <rect x="236" y="74" width="168" height="8" fill="#2c3348"/><rect x="236" y="74" width="104" height="8" fill="#f0566a"/>
+        <!-- 지형 변동 예고 -->
+        <rect x="448" y="96" width="180" height="30" fill="#0e1119" opacity=".88" stroke="#5ed6c6"/>
+        <text x="538" y="116" font-size="12" fill="#5ed6c6" text-anchor="middle" font-weight="600" class="pulse">지형 변동까지 0:12</text>
+        <!-- 팀원 -->
+        <g font-size="11" fill="#ece7dc">
+          <rect x="12" y="12" width="124" height="52" fill="#0e1119" opacity=".82"/>
+          <text x="20" y="29">팀원 2</text><rect x="68" y="22" width="60" height="6" fill="#2c3348"/><rect x="68" y="22" width="48" height="6" fill="#ece7dc"/>
+          <text x="20" y="51" fill="#f0566a">팀원 3</text><text x="68" y="51" fill="#f0566a" font-weight="600">부활 필요</text>
+        </g>
+        <!-- 내 체력 -->
+        <rect x="12" y="312" width="150" height="36" fill="#0e1119" opacity=".82"/>
+        <text x="22" y="337" font-size="20" fill="#ece7dc" font-weight="600">164</text><text x="62" y="337" font-size="11" fill="#a4a9b8">/ 200</text>
+        <rect x="100" y="326" width="52" height="7" fill="#2c3348"/><rect x="100" y="326" width="42" height="7" fill="#ece7dc"/>
+        <!-- 스킬 -->
+        <g>
+          <rect x="246" y="314" width="34" height="34" fill="#0e1119" opacity=".82" stroke="#3b445c"/><text x="263" y="336" font-size="13" fill="#ece7dc" text-anchor="middle" font-weight="600">E</text>
+          <rect x="286" y="314" width="34" height="34" fill="#0e1119" opacity=".82" stroke="#3b445c"/><text x="303" y="336" font-size="13" fill="#a4a9b8" text-anchor="middle">4초</text>
+          <circle cx="352" cy="331" r="19" fill="#0e1119" opacity=".88"/><circle cx="352" cy="331" r="16" fill="none" stroke="#2c3348" stroke-width="4"/>
+          <circle cx="352" cy="331" r="16" fill="none" stroke="#ff8a4c" stroke-width="4" stroke-dasharray="87 101" transform="rotate(-90 352 331)"/>
+          <text x="352" y="335" font-size="11" fill="#ece7dc" text-anchor="middle" font-weight="600">87%</text>
+        </g>
+
+        <!-- 번호 표시 -->
+        <g font-size="12" font-weight="600" text-anchor="middle">
+          <g fill="#ece7dc"><circle cx="448" cy="35" r="11"/><circle cx="423" cy="78" r="11"/><circle cx="148" cy="48" r="11"/><circle cx="392" cy="331" r="11"/><circle cx="296" cy="262" r="11"/><circle cx="232" cy="66" r="11"/></g>
+          <circle cx="436" cy="111" r="11" fill="#5ed6c6"/>
+          <g fill="#161a24"><text x="448" y="39">1</text><text x="423" y="82">2</text><text x="148" y="52">3</text><text x="392" y="335">4</text><text x="296" y="266">5</text><text x="232" y="70">6</text><text x="436" y="115">7</text></g>
+        </g>
+      </svg>
+      <figcaption>전투 화면 예시. 왼쪽과 가운데 통로로 적이 들어오고, 빗금 친 오른쪽 통로는 12초 뒤에 열립니다.</figcaption>
+    </figure>
+  </div>
+  <div class="col">
+    <ol class="legend">
+      <li><span><b>거점 내구도.</b> 0이 되면 패배. 모두가 계속 확인하는 숫자</span></li>
+      <li><span><b>보스 체력.</b> 웨이브 사이에 보스가 끼어든다</span></li>
+      <li><span><b>팀원 상태.</b> 쓰러진 동료는 다가가서 살려야 한다</span></li>
+      <li><span><b>스킬과 궁극기.</b> 궁극기는 몰려든 적을 한 번에 정리하는 수단</span></li>
+      <li><span><b>자폭 돌진형 적.</b> 플레이어를 무시하고 문으로 달려가 문 앞에서 자폭한다. 닿기 전에 처치해야 한다</span></li>
+      <li><span><b>원거리형 적.</b> 높은 곳에서 플레이어를 쏜다</span></li>
+      <li class="n"><span><b>지형 변동 예고.</b> 추가 기능. 곧 어디가 열리고 닫히는지 미리 알려준다</span></li>
+    </ol>
+
+    <h3 style="margin-top:40px">맵이 바뀌면 싸움이 어떻게 달라지나</h3>
+    <p>같은 맵을 위에서 내려다본 그림입니다. 구간을 눌러 보세요. 맵 크기는 그대로인데 적이 오는 길과 지켜야 할 자리가 달라집니다.</p>
+    <div class="seg" role="group" aria-label="맵 구간 선택">
+      <button type="button" id="ph1" aria-pressed="true" data-p="1">1구간</button>
+      <button type="button" id="ph2" aria-pressed="false" data-p="2">2구간</button>
+      <button type="button" id="ph3" aria-pressed="false" data-p="3">3구간</button>
+    </div>
+  </div>
+  <div class="wide" style="max-width:720px">
+    <svg id="map" data-phase="1" class="screen" viewBox="0 0 600 400" role="img" aria-label="위에서 본 맵 예시. 구간마다 열린 통로와 벽의 위치가 달라진다.">
+      <defs>
+        <marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0l8 4-8 4z" fill="#f0566a"/></marker>
+        <pattern id="rub" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#20263a"/><circle cx="3" cy="3" r="2" fill="#3b445c"/><circle cx="8" cy="7" r="1.6" fill="#3b445c"/></pattern>
+      </defs>
+      <rect x="20" y="20" width="560" height="360" fill="#2c3348" stroke="#3b445c" stroke-width="2"/>
+      <!-- 출입구 -->
+      <g font-size="13" fill="#a4a9b8" text-anchor="middle">
+        <text x="110" y="46">통로 A</text><text x="300" y="46">통로 B</text><text x="490" y="46">통로 C</text>
+      </g>
+      <!-- 문 -->
+      <rect x="250" y="362" width="100" height="18" fill="#ff8a4c"/>
+      <text x="300" y="352" font-size="13" fill="#ff8a4c" text-anchor="middle" font-weight="600">지켜야 할 문</text>
+
+      <!-- 1구간 -->
+      <g class="p1">
+        <rect x="400" y="20" width="180" height="150" fill="url(#hatch)" opacity=".7"/>
+        <text x="490" y="100" font-size="13" fill="#5ed6c6" text-anchor="middle" font-weight="600">닫혀 있음</text>
+        <rect x="180" y="60" width="26" height="150" fill="#161a24"/><rect x="394" y="60" width="26" height="200" fill="#161a24"/>
+        <rect x="80" y="230" width="70" height="26" fill="#161a24"/><rect x="262" y="210" width="76" height="26" fill="#161a24"/>
+        <g fill="none" stroke="#f0566a" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#ah)">
+          <path d="M110 60V200q0 110 130 150"/><path d="M300 60v130q-60 40-14 150"/>
+        </g>
+        <g fill="#ece7dc"><circle cx="230" cy="300" r="8"/><circle cx="300" cy="282" r="8"/><circle cx="372" cy="300" r="8"/></g>
+      </g>
+      <!-- 2구간 -->
+      <g class="p2">
+        <rect x="230" y="110" width="140" height="70" fill="url(#rub)" stroke="#3b445c"/>
+        <text x="300" y="150" font-size="13" fill="#a4a9b8" text-anchor="middle" font-weight="600">무너져 막힘</text>
+        <rect x="180" y="60" width="26" height="150" fill="#161a24"/><rect x="394" y="60" width="26" height="90" fill="#161a24"/>
+        <rect x="60" y="250" width="120" height="70" fill="#20263a" stroke="#5ed6c6" stroke-width="2"/>
+        <text x="120" y="290" font-size="13" fill="#5ed6c6" text-anchor="middle" font-weight="600">솟아오른 고지대</text>
+        <rect x="440" y="230" width="76" height="26" fill="#161a24"/>
+        <g fill="none" stroke="#f0566a" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#ah)">
+          <path d="M110 60v120q60 110 150 168"/><path d="M490 60V200q-10 110-130 150"/>
+        </g>
+        <g fill="#ece7dc"><circle cx="110" cy="268" r="8"/><circle cx="300" cy="290" r="8"/><circle cx="410" cy="300" r="8"/></g>
+      </g>
+      <!-- 3구간 -->
+      <g class="p3">
+        <rect x="150" y="200" width="26" height="60" fill="#161a24"/><rect x="424" y="200" width="26" height="60" fill="#161a24"/>
+        <circle cx="300" cy="150" r="54" fill="none" stroke="#f0566a" stroke-width="2" stroke-dasharray="4 6"/>
+        <path d="M278 176v-34l-10-14 14 4 6-14h24l6 14 14-4-10 14v34z" fill="#161a24"/><circle cx="300" cy="146" r="5" fill="#ff8a4c"/>
+        <text x="300" y="226" font-size="13" fill="#f0566a" text-anchor="middle" font-weight="600">최종 보스</text>
+        <g fill="none" stroke="#f0566a" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#ah)">
+          <path d="M110 60v150q10 100 130 140"/><path d="M490 60v150q-10 100-130 140"/><path d="M300 236v106"/>
+        </g>
+        <g fill="#ece7dc"><circle cx="210" cy="300" r="8"/><circle cx="300" cy="318" r="8"/><circle cx="390" cy="300" r="8"/></g>
+      </g>
+    </svg>
+  </div>
+  <div class="col">
+    <p class="small" style="margin-top:10px">빨간 점선은 적의 진로, 흰 점은 플레이어 세 명입니다.</p>
+    <ul class="phases">
+      <li id="c1" class="on"><b>1구간.</b> 통로 A와 B만 열려 있다. 긴 벽 두 개가 길을 나눠서 두 갈래로 나눠 막으면 된다.</li>
+      <li id="c2"><b>2구간.</b> 가운데가 무너져 B가 막히고 C가 열린다. 왼쪽에 고지대가 솟아 위에서 쏘는 자리가 생긴다.</li>
+      <li id="c3"><b>3구간.</b> 안쪽 벽이 사라져 광장이 된다. 세 통로가 모두 열리고 최종 보스가 가운데로 들어온다.</li>
+    </ul>
+    <div class="note">위 변형은 기능을 설명하려고 그린 예시입니다. 실제로 무엇이 어떻게 바뀔지(벽 이동, 통로 개폐, 고저차, 문 위치 등)는 아직 정하지 않았습니다.</div>
+
+    <h3 style="margin-top:40px">한 판의 흐름 (예시)</h3>
+    <ol class="flow">
+      <li><b>준비</b><span>캐릭터를 고르고 자리를 잡는다</span></li>
+      <li><b>웨이브</b><span>1구간 맵에서 초반 웨이브를 막는다</span></li>
+      <li class="b"><b>보스</b><span>첫 보스 등장. 일반 적은 계속 온다</span></li>
+      <li class="s"><b>지형 변동</b><span>예고 후 맵이 2구간으로 바뀐다. 자리를 다시 잡는다</span></li>
+      <li><b>웨이브</b><span>새 통로에서 오는 적을 막는다</span></li>
+      <li class="b"><b>보스</b><span>두 번째 보스 등장</span></li>
+      <li class="s"><b>지형 변동</b><span>맵이 3구간으로 바뀐다</span></li>
+      <li class="b"><b>최종전</b><span>최종 보스와 앞선 보스들이 함께 온다. 모두 쓰러뜨리면 승리</span></li>
+    </ol>
+  </div>
+</section>
+
+<section><div class="col">
+  <p class="kicker">06 · 팀</p>
+  <h2>함께할 사람과 역할</h2>
+  <div class="rows">
+    <div><span class="k">클라이언트 1</span><span>모집자 본인. 플레이어 조작, 캐릭터 스킬, 게임 진행, 첫 보스</span></div>
+    <div><span class="k">클라이언트 2</span><span>일반 적, 웨이브, 맵 변형, 보스 2와 3, 최종전</span></div>
+    <div><span class="k">기획 · 그래픽</span><span>세계관과 캐릭터 기획, 밸런스, AI 3D 에셋, 영상과 제출 자료</span></div>
+    <div><span class="k">서버</span><span>방 만들기와 입장, 동기화</span></div>
+  </div>
+  <p class="small">역할 분담은 제안이고 합류 후 조정합니다. 엔진은 Unity를 쓸 계획입니다.</p>
+
+  <h3 style="margin-top:26px">아직 정해지지 않은 것</h3>
+  <ul class="plain">
+    <li>세계관과 캐릭터 컨셉</li>
+    <li>맵 변형의 구체적인 방식과 횟수</li>
+    <li>웨이브 수</li>
+    <li>멀티플레이 방식</li>
+    <li>프로젝트 이름</li>
+  </ul>
+
+  <h3 style="margin-top:26px">일정</h3>
+  <p>여섯 단계로 나눈 일정과 담당별 작업 목록은 <a href="#milestones">마일스톤 탭</a>에서 볼 수 있습니다. 제작 과정 영상은 별도 보상이 있어서 첫 주부터 개발 과정을 기록합니다.</p>
+</div></section>
+
+
+</div>
+<div class="panel" id="panel-milestones" hidden>
+<header class="col mhead">
+  <p class="kicker">마일스톤 · 2026.11.26 ~ 2027.1.24</p>
+  <h1>마감까지 여섯 단계</h1>
+  <div class="facts">
+    <div><b id="dday">D-60</b><span>제출 마감 1월 25일 08:59 (한국 시간)</span></div>
+    <div><b id="nowms">M0</b><span id="nowname">지금 단계: 기획 확정과 기술 검증</span></div>
+    <div><b>1월 10일</b><span>기능 추가 중단</span></div>
+    <div><b>1월 23일</b><span>제출 목표일 (24일은 예비)</span></div>
+  </div>
+</header>
+
+<section><div class="col">
+  <p class="kicker">일정</p>
+  <h2>한눈에 보는 일정</h2>
+  <div class="axis" aria-hidden="true"><span style="left:8.33%">12월</span><span style="left:60%">1월</span></div>
+  <ol class="gantt" id="gantt">
+<li><a class="grow" href="#milestones" data-ms="1" data-d0="0" data-days="7"><span class="gl"><b>M0</b>기획 확정과 기술 검증<span class="badge" hidden>진행 중</span></span><span class="gd">11/26~12/2 · 7일</span><span class="gt"><i style="left:0.00%;width:11.67%"></i></span></a></li>
+<li><a class="grow" href="#milestones" data-ms="2" data-d0="7" data-days="11"><span class="gl"><b>M1</b>혼자 한 판<span class="badge" hidden>진행 중</span></span><span class="gd">12/3~12/13 · 11일</span><span class="gt"><i style="left:11.67%;width:18.33%"></i></span></a></li>
+<li><a class="grow" href="#milestones" data-ms="3" data-d0="18" data-days="14"><span class="gl"><b>M2</b>3인 협동과 맵 변형<span class="risk">위험 구간</span><span class="badge" hidden>진행 중</span></span><span class="gd">12/14~12/27 · 14일</span><span class="gt"><i style="left:30.00%;width:23.33%"></i></span></a></li>
+<li><a class="grow" href="#milestones" data-ms="4" data-d0="32" data-days="14"><span class="gl"><b>M3</b>콘텐츠 완성<span class="badge" hidden>진행 중</span></span><span class="gd">12/28~1/10 · 14일</span><span class="gt"><i style="left:53.33%;width:23.33%"></i></span></a></li>
+<li><a class="grow" href="#milestones" data-ms="5" data-d0="46" data-days="7"><span class="gl"><b>M4</b>다듬기<span class="badge" hidden>진행 중</span></span><span class="gd">1/11~1/17 · 7일</span><span class="gt"><i style="left:76.67%;width:11.67%"></i></span></a></li>
+<li><a class="grow" href="#milestones" data-ms="6" data-d0="53" data-days="7"><span class="gl"><b>M5</b>제출<span class="badge" hidden>진행 중</span></span><span class="gd">1/18~1/24 · 7일</span><span class="gt"><i style="left:88.33%;width:11.67%"></i></span></a></li>
+<li><a class="grow always" href="#milestones" data-ms="7"><span class="gl"><b>상시</b>제작 과정 영상, 주간 점검</span><span class="gd">전 기간</span><span class="gt"><i style="left:0;width:100%"></i></span></a></li>
+  </ol>
+  <p class="hint"><span id="todayhint" hidden>막대의 흰 세로선이 오늘입니다. </span>단계를 누르면 아래 작업 목록에서 해당 단계가 열립니다.</p>
+  <p class="hint j"><a class="jump" href="#milestones" data-jump="sec-cut">일정이 밀리면 줄이는 순서 보기</a></p>
+</div></section>
+
+<section><div class="col">
+  <p class="kicker">WBS</p>
+  <h2>작업 분해 구조</h2>
+  <p>번호는 단계, 작업 묶음, 작업 순서입니다. 첫 숫자가 단계 번호라서 2.3.1은 M2의 세 번째 묶음의 첫 작업입니다. 상시 작업은 S로 시작합니다.</p>
+  <div class="wtools" role="group" aria-label="담당별로 보기">
+    <span class="lab">담당</span>
+    <button type="button" class="chip" id="f-all" data-f="" aria-pressed="true">전체</button>
+    <button type="button" class="chip" id="f-p" data-f="기획" aria-pressed="false">기획</button>
+    <button type="button" class="chip" id="f-k1" data-f="클라 1" aria-pressed="false">클라 1</button>
+    <button type="button" class="chip" id="f-k2" data-f="클라 2" aria-pressed="false">클라 2</button>
+    <button type="button" class="chip" id="f-s" data-f="서버" aria-pressed="false">서버</button>
+    <button type="button" class="chip ghost" id="toggleall">모두 펼치기</button>
+  </div>
+  <p class="hint" id="fnote" hidden></p>
+  <div id="wbs">
+<details class="ms" id="ms-1" data-d0="0" data-days="7" open><summary><span class="wn"><b>M0</b>기획 확정과 기술 검증<span class="badge" hidden>진행 중</span></span><span class="wd">11/26~12/2 · 작업 <span class="cnt">9</span>개<span class="fl"></span></span></summary><div class="msb"><p class="gate"><b>통과 기준</b>맵 변형 방식이 문서로 확정되고, 기술 실험 세 가지가 모두 통과</p><p class="empty" hidden></p><div class="pk"><h4><span class="code">0.1</span>기획</h4><ul>
+<li data-o="기획"><span class="code">0.1.1</span><span class="t">세계관과 분위기 확정<small>산출물: 1페이지 기획서</small></span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">0.1.2</span><span class="t">플레이어 캐릭터 3명의 컨셉과 스킬 초안<small>산출물: 캐릭터 시트 3장</small></span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">0.1.3</span><span class="t">보스 3명의 컨셉과 패턴 초안<small>산출물: 보스 시트 3장</small></span><span class="own o-l">기획</span></li>
+<li data-o="전원"><span class="code">0.1.4</span><span class="t">맵 변형 방식과 횟수 확정<small>산출물: 맵 구간 스케치</small></span><span class="own o-a">전원</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">0.2</span>기술 검증</h4><ul>
+<li data-o="서버"><span class="code">0.2.1</span><span class="t">멀티플레이 방식 결정, 2명 접속 테스트<small>산출물: 접속되는 테스트 빌드</small></span><span class="own o-s">서버</span></li>
+<li data-o="기획"><span class="code">0.2.2</span><span class="t">AI 3D 모델 1개를 리깅해 Unity에서 재생<small>산출물: 움직이는 캐릭터 1개</small></span><span class="own o-l">기획</span></li>
+<li data-o="클라 2"><span class="code">0.2.3</span><span class="t">맵이 바뀔 때 적의 길찾기가 갱신되는지 실험<small>산출물: 실험 씬</small></span><span class="own o-k2">클라 2</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">0.3</span>프로젝트 준비</h4><ul>
+<li data-o="클라 1"><span class="code">0.3.1</span><span class="t">저장소, 작업 규칙, 빌드 설정<small>산출물: 공용 저장소</small></span><span class="own o-c">클라 1</span></li>
+<li data-o="기획"><span class="code">0.3.2</span><span class="t">대회 제출 화면 확인: 미리 등록하고 수정할 수 있는지<small>산출물: 확인 메모</small></span><span class="own o-l">기획</span></li>
+</ul></div></div></details>
+<details class="ms" id="ms-2" data-d0="7" data-days="11"><summary><span class="wn"><b>M1</b>혼자 한 판<span class="badge" hidden>진행 중</span></span><span class="wd">12/3~12/13 · 작업 <span class="cnt">12</span>개<span class="fl"></span></span></summary><div class="msb"><p class="gate"><b>통과 기준</b>혼자서 시작부터 승패까지 한 판이 돌아감</p><p class="empty" hidden></p><div class="pk"><h4><span class="code">1.1</span>플레이어</h4><ul>
+<li data-o="클라 1"><span class="code">1.1.1</span><span class="t">이동과 시점</span><span class="own o-c">클라 1</span></li>
+<li data-o="클라 1"><span class="code">1.1.2</span><span class="t">사격과 피격</span><span class="own o-c">클라 1</span></li>
+<li data-o="클라 1"><span class="code">1.1.3</span><span class="t">캐릭터 1의 스킬과 궁극기</span><span class="own o-c">클라 1</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">1.2</span>일반 적 2종</h4><ul>
+<li data-o="클라 2"><span class="code">1.2.1</span><span class="t">자폭 돌진형: 문으로 달려가 문 앞에서 자폭</span><span class="own o-k2">클라 2</span></li>
+<li data-o="클라 2"><span class="code">1.2.2</span><span class="t">원거리형: 플레이어 공격</span><span class="own o-k2">클라 2</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">1.3</span>게임 진행</h4><ul>
+<li data-o="클라 1"><span class="code">1.3.1</span><span class="t">문 내구도</span><span class="own o-c">클라 1</span></li>
+<li data-o="클라 2"><span class="code">1.3.2</span><span class="t">웨이브 생성</span><span class="own o-k2">클라 2</span></li>
+<li data-o="클라 1"><span class="code">1.3.3</span><span class="t">승패 판정과 재시작</span><span class="own o-c">클라 1</span></li>
+<li data-o="기획"><span class="code">1.3.4</span><span class="t">웨이브 구성표 초안</span><span class="own o-l">기획</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">1.4</span>맵과 UI</h4><ul>
+<li data-o="기획"><span class="code">1.4.1</span><span class="t">임시 블록으로 만든 맵 1구간</span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">1.4.2</span><span class="t">캐릭터 1과 일반 적 2종의 임시 모델</span><span class="own o-l">기획</span></li>
+<li data-o="클라 2"><span class="code">1.4.3</span><span class="t">최소 HUD: 체력, 문 내구도, 웨이브</span><span class="own o-k2">클라 2</span></li>
+</ul></div></div></details>
+<details class="ms" id="ms-3" data-d0="18" data-days="14"><summary><span class="wn"><b>M2</b>3인 협동과 맵 변형<span class="risk">위험 구간</span><span class="badge" hidden>진행 중</span></span><span class="wd">12/14~12/27 · 작업 <span class="cnt">12</span>개<span class="fl"></span></span></summary><div class="msb"><p class="gate"><b>통과 기준</b>3명이 접속해 맵 변형이 들어간 한 판을 끝까지 플레이</p><p class="riskn"><b>위험 구간.</b> 맵 변형과 멀티플레이 동기화가 처음 만나는 단계라 일정이 밀리기 쉽습니다.</p><p class="empty" hidden></p><div class="pk"><h4><span class="code">2.1</span>멀티플레이</h4><ul>
+<li data-o="서버"><span class="code">2.1.1</span><span class="t">방 만들기와 입장</span><span class="own o-s">서버</span></li>
+<li data-o="서버"><span class="code">2.1.2</span><span class="t">플레이어 동기화</span><span class="own o-s">서버</span></li>
+<li data-o="서버"><span class="code">2.1.3</span><span class="t">적과 웨이브 동기화</span><span class="own o-s">서버</span></li>
+<li data-o="클라 1"><span class="code">2.1.4</span><span class="t">쓰러짐과 부활</span><span class="own o-c">클라 1</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">2.2</span>맵 변형</h4><ul>
+<li data-o="기획"><span class="code">2.2.1</span><span class="t">구간별 맵 배치 설계</span><span class="own o-l">기획</span></li>
+<li data-o="클라 2"><span class="code">2.2.2</span><span class="t">변형 2회 구현</span><span class="own o-k2">클라 2</span></li>
+<li data-o="클라 2"><span class="code">2.2.3</span><span class="t">변형 예고 연출과 UI</span><span class="own o-k2">클라 2</span></li>
+<li data-o="서버"><span class="code">2.2.4</span><span class="t">변형 동기화</span><span class="own o-s">서버</span></li>
+<li data-o="클라 2"><span class="code">2.2.5</span><span class="t">변형 후 길찾기 갱신</span><span class="own o-k2">클라 2</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">2.3</span>보스</h4><ul>
+<li data-o="클라 1"><span class="code">2.3.1</span><span class="t">보스 1 패턴</span><span class="own o-c">클라 1</span></li>
+<li data-o="클라 1"><span class="code">2.3.2</span><span class="t">보스 체력 UI</span><span class="own o-c">클라 1</span></li>
+<li data-o="기획"><span class="code">2.3.3</span><span class="t">보스 1 모델</span><span class="own o-l">기획</span></li>
+</ul></div></div></details>
+<details class="ms" id="ms-4" data-d0="32" data-days="14"><summary><span class="wn"><b>M3</b>콘텐츠 완성<span class="badge" hidden>진행 중</span></span><span class="wd">12/28~1/10 · 작업 <span class="cnt">16</span>개<span class="fl"></span></span></summary><div class="msb"><p class="gate"><b>통과 기준</b>1/10에 기능 추가 중단. 캐릭터 3명과 보스 3명으로 한 판 완주</p><p class="empty" hidden></p><div class="pk"><h4><span class="code">3.1</span>캐릭터</h4><ul>
+<li data-o="클라 1"><span class="code">3.1.1</span><span class="t">캐릭터 2</span><span class="own o-c">클라 1</span></li>
+<li data-o="클라 1"><span class="code">3.1.2</span><span class="t">캐릭터 3</span><span class="own o-c">클라 1</span></li>
+<li data-o="클라 1"><span class="code">3.1.3</span><span class="t">캐릭터 선택 화면</span><span class="own o-c">클라 1</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">3.2</span>보스</h4><ul>
+<li data-o="클라 2"><span class="code">3.2.1</span><span class="t">보스 2</span><span class="own o-k2">클라 2</span></li>
+<li data-o="클라 2"><span class="code">3.2.2</span><span class="t">보스 3</span><span class="own o-k2">클라 2</span></li>
+<li data-o="클라 2"><span class="code">3.2.3</span><span class="t">최종전: 보스 동시 등장</span><span class="own o-k2">클라 2</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">3.3</span>AI 3D 에셋</h4><ul>
+<li data-o="기획"><span class="code">3.3.1</span><span class="t">플레이어 캐릭터 3명 모델</span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">3.3.2</span><span class="t">보스 2, 보스 3 모델</span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">3.3.3</span><span class="t">일반 적 2종 모델</span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">3.3.4</span><span class="t">맵 구조물과 소품</span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">3.3.5</span><span class="t">작업 화면 기록: 도구 사용 증빙</span><span class="own o-l">기획</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">3.4</span>UI와 사운드</h4><ul>
+<li data-o="클라 1"><span class="code">3.4.1</span><span class="t">HUD 완성</span><span class="own o-c">클라 1</span></li>
+<li data-o="클라 2"><span class="code">3.4.2</span><span class="t">메뉴와 결과 화면</span><span class="own o-k2">클라 2</span></li>
+<li data-o="기획"><span class="code">3.4.3</span><span class="t">효과음과 음악</span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">3.4.4</span><span class="t">화면 글자 영어 표기</span><span class="own o-l">기획</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">3.5</span>멀티플레이</h4><ul>
+<li data-o="서버"><span class="code">3.5.1</span><span class="t">3인 플레이 안정성 점검</span><span class="own o-s">서버</span></li>
+</ul></div></div></details>
+<details class="ms" id="ms-5" data-d0="46" data-days="7"><summary><span class="wn"><b>M4</b>다듬기<span class="badge" hidden>진행 중</span></span><span class="wd">1/11~1/17 · 작업 <span class="cnt">9</span>개<span class="fl"></span></span></summary><div class="msb"><p class="gate"><b>통과 기준</b>처음 해보는 3명이 설명 없이 한 판을 끝냄</p><p class="empty" hidden></p><div class="pk"><h4><span class="code">4.1</span>밸런스</h4><ul>
+<li data-o="기획"><span class="code">4.1.1</span><span class="t">웨이브 난이도 곡선</span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">4.1.2</span><span class="t">캐릭터와 보스 수치</span><span class="own o-l">기획</span></li>
+<li data-o="클라 1"><span class="code">4.1.3</span><span class="t">1~2명일 때 난이도 조정</span><span class="own o-c">클라 1</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">4.2</span>안정화</h4><ul>
+<li data-o="전원"><span class="code">4.2.1</span><span class="t">버그 수정</span><span class="own o-a">전원</span></li>
+<li data-o="클라 2"><span class="code">4.2.2</span><span class="t">프레임 최적화</span><span class="own o-k2">클라 2</span></li>
+<li data-o="서버"><span class="code">4.2.3</span><span class="t">접속 끊김 처리</span><span class="own o-s">서버</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">4.3</span>외부 플레이 테스트</h4><ul>
+<li data-o="기획"><span class="code">4.3.1</span><span class="t">테스터 3명 모집</span><span class="own o-l">기획</span></li>
+<li data-o="전원"><span class="code">4.3.2</span><span class="t">테스트 진행과 피드백 정리</span><span class="own o-a">전원</span></li>
+<li data-o="전원"><span class="code">4.3.3</span><span class="t">피드백 반영</span><span class="own o-a">전원</span></li>
+</ul></div></div></details>
+<details class="ms" id="ms-6" data-d0="53" data-days="7"><summary><span class="wn"><b>M5</b>제출<span class="badge" hidden>진행 중</span></span><span class="wd">1/18~1/24 · 작업 <span class="cnt">10</span>개<span class="fl"></span></span></summary><div class="msb"><p class="gate"><b>통과 기준</b>1/23(토)에 제출 완료</p><p class="empty" hidden></p><div class="pk"><h4><span class="code">5.1</span>데모 영상</h4><ul>
+<li data-o="기획"><span class="code">5.1.1</span><span class="t">구성안</span><span class="own o-l">기획</span></li>
+<li data-o="전원"><span class="code">5.1.2</span><span class="t">플레이 촬영</span><span class="own o-a">전원</span></li>
+<li data-o="기획"><span class="code">5.1.3</span><span class="t">편집과 영어 자막</span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">5.1.4</span><span class="t">공개 업로드</span><span class="own o-l">기획</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">5.2</span>제출 자료</h4><ul>
+<li data-o="기획"><span class="code">5.2.1</span><span class="t">설명문: 플레이 방법, 작업 과정, AI 사용처</span><span class="own o-l">기획</span></li>
+<li data-o="기획"><span class="code">5.2.2</span><span class="t">커버 이미지</span><span class="own o-l">기획</span></li>
+<li data-o="전원"><span class="code">5.2.3</span><span class="t">사용 도구 신고와 증빙 정리</span><span class="own o-a">전원</span></li>
+<li data-o="서버"><span class="code">5.2.4</span><span class="t">플레이 링크 (선택 항목)</span><span class="own o-s">서버</span></li>
+</ul></div>
+<div class="pk"><h4><span class="code">5.3</span>제출</h4><ul>
+<li data-o="전원"><span class="code">5.3.1</span><span class="t">1/23(토) 제출: 팀 대표가 진행</span><span class="own o-a">전원</span></li>
+<li data-o="전원"><span class="code">5.3.2</span><span class="t">1/24(일) 예비일: 문제 생기면 재제출</span><span class="own o-a">전원</span></li>
+</ul></div></div></details>
+<details class="ms" id="ms-7"><summary><span class="wn"><b>상시</b>전 기간 병행 작업</span><span class="wd">11/26~1/24 · 작업 <span class="cnt">2</span>개<span class="fl"></span></span></summary><div class="msb"><p class="empty" hidden></p><div class="pk"><h4><span class="code">S.1</span>전 기간 병행</h4><ul>
+<li data-o="기획"><span class="code">S.1.1</span><span class="t">제작 과정 영상: 마일스톤마다 1개 게시</span><span class="own o-l">기획</span></li>
+<li data-o="전원"><span class="code">S.1.2</span><span class="t">주간 점검: 통과 기준 확인과 범위 조정</span><span class="own o-a">전원</span></li>
+</ul></div></div></details>
+  </div>
+  <dl class="roles">
+    <dt><span class="own o-l">기획</span></dt><dd>기획과 그래픽 담당</dd>
+    <dt><span class="own o-c">클라 1</span></dt><dd>클라이언트 개발자 (모집자 본인)</dd>
+    <dt><span class="own o-k2">클라 2</span></dt><dd>클라이언트 개발자</dd>
+    <dt><span class="own o-s">서버</span></dt><dd>서버 개발자</dd>
+    <dt><span class="own o-a">전원</span></dt><dd>팀 전체가 함께 하는 작업</dd>
+  </dl>
+  <div class="note">담당은 제안입니다. 팀원이 합류하면 함께 조정합니다.</div>
+</div></section>
+
+<section id="sec-cut" style="scroll-margin-top:52px"><div class="col">
+  <p class="kicker">범위 조정</p>
+  <h2>일정이 밀리면 줄이는 순서</h2>
+  <p>통과 기준을 날짜 안에 못 넘기면 위에서부터 차례로 줄입니다. 맵 변형 자체는 줄이지 않습니다. 평가에서 비중이 가장 큰 창의성 40%가 여기에 걸려 있습니다.</p>
+  <ol class="cut">
+    <li>난이도 단계를 하나로</li>
+    <li>맵 변형 2회를 1회로</li>
+    <li>보스 3명이 패턴 일부를 공유</li>
+    <li>전용 서버 없이 플레이어 한 명이 방을 여는 방식 유지</li>
+  </ol>
+</div></section>
+</div>
+</main>
+<footer><div class="col">
+  <p>대회 정보는 2026년 11월 23일에 확인한 공식 규정 기준입니다. 일정은 주최 측 공지로 바뀔 수 있습니다.</p>
+  <p><a href="https://www.meshy.ai/ko/z-axis-awards">Z-Axis Awards 안내</a> · <a href="https://www.meshy.ai/ko/z-axis-awards/official-rules">공식 규정</a></p>
+</div></footer>
+
+<script>
+(function(){
+  var map=document.getElementById('map');
+  var btns=[].slice.call(document.querySelectorAll('.seg button'));
+  function set(p){
+    map.setAttribute('data-phase',p);
+    btns.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.p===p));});
+    ['1','2','3'].forEach(function(n){document.getElementById('c'+n).classList.toggle('on',n===p);});
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){set(b.dataset.p);});});
+})();
+</script>
+
+<script>
+(function(){
+  var panels={plan:document.getElementById('panel-plan'),milestones:document.getElementById('panel-milestones')};
+  var tabs=[].slice.call(document.querySelectorAll('[data-tab]'));
+  function show(name){
+    if(!panels[name])name='plan';
+    for(var k in panels)panels[k].hidden=(k!==name);
+    tabs.forEach(function(a){if(a.dataset.tab===name)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+  }
+  function route(){show(location.hash.replace('#','')==='milestones'?'milestones':'plan');}
+  [].slice.call(document.querySelectorAll('a[href="#plan"],a[href="#milestones"]')).forEach(function(a){
+    if(a.dataset.ms||a.dataset.jump)return;
+    a.addEventListener('click',function(e){
+      e.preventDefault();var n=a.getAttribute('href').slice(1);show(n);
+      try{location.hash=n;}catch(err){}
+      window.scrollTo(0,0);
+    });
+  });
+  window.addEventListener('hashchange',route);route();
+
+  /* 오늘 날짜(한국 시간) 기준 표시 */
+  var TOTAL=60,DAY=864e5,k=new Date(Date.now()+9*36e5);
+  var today=Date.UTC(k.getUTCFullYear(),k.getUTCMonth(),k.getUTCDate());
+  var idx=Math.floor((today-Date.UTC(2026,10,26))/DAY);
+  var left=Math.round((Date.UTC(2027,0,25)-today)/DAY);
+  var dd=document.getElementById('dday'),nm=document.getElementById('nowms'),nn=document.getElementById('nowname');
+  dd.textContent=Date.now()>Date.UTC(2027,0,24,23,59)?'마감 지남':(left>0?'D-'+left:'D-DAY');
+  var gantt=document.getElementById('gantt'),cur=null;
+  if(idx>=0&&idx<TOTAL){
+    gantt.classList.add('has-today');document.getElementById('todayhint').hidden=false;gantt.style.setProperty('--today',((idx+0.5)*100/TOTAL).toFixed(2)+'%');
+  }
+  [].slice.call(gantt.querySelectorAll('.grow[data-d0]')).forEach(function(r){
+    var d0=+r.dataset.d0,n=+r.dataset.days;
+    if(idx>=d0+n)r.classList.add('done');
+    else if(idx>=d0){r.classList.add('now');cur=r;}
+  });
+  var all=[].slice.call(document.querySelectorAll('details.ms')),home=all[0];
+  if(cur){
+    cur.querySelector('.badge').hidden=false;
+    var d=document.getElementById('ms-'+cur.dataset.ms);
+    home=d;all.forEach(function(x){x.open=(x===d);});
+    d.classList.add('now');d.querySelector('.badge').hidden=false;
+    nm.textContent=cur.querySelector('.gl b').textContent;
+    nn.textContent='지금 단계: '+cur.querySelector('.gl').childNodes[1].textContent;
+  }else if(idx<0){nm.textContent='시작 전';nn.textContent='11월 26일 시작';}
+  else{nm.textContent='종료';nn.textContent='모든 단계가 끝남';}
+
+  /* 일정에서 단계를 누르면 WBS의 해당 단계로 */
+  [].slice.call(gantt.querySelectorAll('.grow')).forEach(function(r){
+    r.addEventListener('click',function(e){
+      e.preventDefault();
+      var d=document.getElementById('ms-'+r.dataset.ms);d.open=true;sync();
+      d.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'});
+      d.querySelector('summary').focus({preventScroll:true});
+    });
+  });
+
+  /* 모두 펼치기 / 접기 */
+  var tg=document.getElementById('toggleall');
+  function sync(){
+    var open=all.every(function(x){return x.open||x.hidden;});
+    tg.textContent=open?'모두 접기':'모두 펼치기';
+  }
+  tg.addEventListener('click',function(){
+    var open=all.every(function(x){return x.open||x.hidden;});
+    all.forEach(function(x){x.open=!open;});sync();
+  });
+  all.forEach(function(x){x.addEventListener('toggle',sync);});
+
+  /* 담당별 보기: 고른 담당의 작업과 전원 작업만 남긴다 */
+  var smooth=function(){return matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth';};
+  [].slice.call(document.querySelectorAll('a[data-jump]')).forEach(function(a){
+    a.addEventListener('click',function(e){e.preventDefault();document.getElementById(a.dataset.jump).scrollIntoView({behavior:smooth(),block:'start'});});
+  });
+  var chips=[].slice.call(document.querySelectorAll('.chip[data-f]')),note=document.getElementById('fnote');
+  function filter(f){
+    var shown=0;
+    all.forEach(function(d){
+      var c=0;
+      [].slice.call(d.querySelectorAll('.pk')).forEach(function(p){
+        var pc=0;
+        [].slice.call(p.querySelectorAll('li')).forEach(function(li){
+          var ok=!f||li.dataset.o===f||li.dataset.o==='전원';li.hidden=!ok;if(ok)pc++;
+        });
+        p.hidden=!pc;c+=pc;
+      });
+      d.querySelector('.cnt').textContent=c;d.querySelector('.fl').textContent=f?' · '+f+'+전원만':'';
+      var em=d.querySelector('.empty');em.hidden=!(f&&!c);em.textContent='이 단계에는 '+f+' 담당 작업이 없습니다.';
+      d.open=f?true:(d===home);shown+=c;
+    });
+    chips.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.f===f));});
+    note.hidden=!f;
+    if(f)note.textContent=f+' 담당 작업과 전원 작업 '+shown+'개만 보는 중입니다.';
+    sync();
+  }
+  chips.forEach(function(b){b.addEventListener('click',function(){filter(b.dataset.f);});});
+  sync();
+})();
+</script>
+</body>
+</html>

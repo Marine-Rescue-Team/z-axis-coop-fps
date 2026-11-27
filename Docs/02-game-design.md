@@ -56,7 +56,7 @@
 - 스킬과 궁극기
 - 지형 변동 예고: 곧 어디가 열리고 닫히는지 미리 알려준다
 
-그림은 소개 페이지에 있습니다: https://claude.ai/artifact/NxasCfz2Lr7V7YTpbw1XnA
+그림은 소개 페이지에 있습니다: [`intro-page/index.html`](intro-page/index.html)
 
 ## 아직 정해지지 않은 것
 

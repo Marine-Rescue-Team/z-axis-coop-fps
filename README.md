@@ -4,7 +4,7 @@ Meshy **Z-Axis Awards** 게임 트랙 출품작. 세 명이 거점의 문을 지
 
 - 제출 마감: **2027년 1월 25일 08:59 (한국 시간)** / 1월 24일 23:59 UTC
 - 제출 목표일: 1월 23일(토), 기능 추가 중단: 1월 10일
-- 화면 예시가 들어간 소개 페이지: https://claude.ai/artifact/NxasCfz2Lr7V7YTpbw1XnA
+- 화면 예시가 들어간 소개 페이지: [`Docs/intro-page/index.html`](Docs/intro-page/index.html)
 
 ## 폴더 구조
 
