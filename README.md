@@ -4,7 +4,7 @@ Meshy **Z-Axis Awards** 게임 트랙 출품작. 세 명이 거점의 문을 지
 
 - 제출 마감: **2027년 1월 25일 08:59 (한국 시간)** / 1월 24일 23:59 UTC
 - 마일스톤 일정과 통과 기준: [GitHub 마일스톤](https://github.com/Marine-Rescue-Team/z-axis-coop-fps/milestones)
-- 화면 예시가 들어간 소개 페이지: [`Docs/intro-page/index.html`](Docs/intro-page/index.html)
+- 화면 예시가 들어간 소개 페이지: [`Planning/intro-page/index.html`](Planning/intro-page/index.html)
 
 ## 폴더 구조
 
@@ -12,15 +12,16 @@ Meshy **Z-Axis Awards** 게임 트랙 출품작. 세 명이 거점의 문을 지
 |---|---|
 | [`Client/`](Client) | Unity 프로젝트 |
 | [`Server/`](Server) | 서버 코드 |
-| [`Docs/`](Docs) | 기획 문서, 대회 정보, 마일스톤과 작업 목록 |
+| [`Planning/`](Planning) | 기획 문서, 대회 정보, 마일스톤과 작업 목록 |
 
 ## 먼저 읽을 문서
 
-1. [대회 정보](Docs/01-contest.md): 일정, 제출물, 평가 기준
-2. [게임 기획](Docs/02-game-design.md): 무엇을 만드는지, 아직 정해지지 않은 것
-3. [GitHub 마일스톤](https://github.com/Marine-Rescue-Team/z-axis-coop-fps/milestones): 단계별 일정과 통과 기준. 고칠 때는 [`Docs/milestones.yml`](Docs/milestones.yml)
-4. [작업 분해(WBS) 초안](Docs/03-wbs-draft.md): 단계별로 필요한 작업을 미리 나눠 본 참고 목록
-5. [작업 방식 안내](Docs/workflow/index.html): 폴더 담당, 브랜치, 티켓으로 일하는 순서. 내려받아 브라우저로 엽니다
+1. [대회 정보](Planning/01-contest.md): 일정, 제출물, 평가 기준
+2. [게임 기획](Planning/02-game-design.md): 무엇을 만드는지, 아직 정해지지 않은 것
+3. [GitHub 마일스톤](https://github.com/Marine-Rescue-Team/z-axis-coop-fps/milestones): 단계별 일정과 통과 기준. 고칠 때는 [`Planning/milestones.yml`](Planning/milestones.yml)
+4. [작업 분해(WBS) 초안](Planning/03-wbs-draft.md): 단계별로 필요한 작업을 미리 나눠 본 참고 목록
+5. [작업 방식 안내](Planning/workflow/index.html): 폴더 담당, 브랜치, 티켓으로 일하는 순서. 내려받아 브라우저로 엽니다
+6. [`AGENTS.md`](AGENTS.md): AI 에이전트가 따르는 작업 규칙. 작업 방식 안내와 같은 내용
 
 ## 팀
 

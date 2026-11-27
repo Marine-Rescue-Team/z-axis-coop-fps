@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Docs/milestones.yml -> GitHub 마일스톤 (한 방향 반영).
+"""Planning/milestones.yml -> GitHub 마일스톤 (한 방향 반영).
 
 - 제목이 "<id>."로 시작하는 마일스톤을 찾아 제목, 마감일, 설명을 덮어씁니다. 없으면 만듭니다.
 - 마일스톤마다 종료 티켓(라벨: milestone-end)이 없으면 하나 만듭니다. 있는 티켓은 건드리지 않습니다.
@@ -8,7 +8,7 @@
 import json, os, sys, urllib.request, urllib.error
 import yaml
 
-SRC = "Docs/milestones.yml"
+SRC = "Planning/milestones.yml"
 LABEL = "milestone-end"
 DRY = os.environ.get("DRY_RUN") == "1"
 REPO = os.environ.get("GITHUB_REPOSITORY", "")

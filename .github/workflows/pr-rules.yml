@@ -1,0 +1,28 @@
+name: PR 규칙 검사
+
+# 브랜치 이름, 제목, 본문, 폴더 담당 승인을 확인합니다. 규칙은 AGENTS.md에 있습니다.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: pr-rules-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  rules:
+    name: PR 규칙
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+      - run: python3 .github/scripts/pr_rules.py
+        env:
+          GH_TOKEN: ${{ github.token }}

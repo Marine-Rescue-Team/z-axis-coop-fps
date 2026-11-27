@@ -1,11 +1,11 @@
 name: 마일스톤 동기화
 
-# Docs/milestones.yml(정본)을 GitHub 마일스톤에 반영합니다.
+# Planning/milestones.yml(정본)을 GitHub 마일스톤에 반영합니다.
 on:
   push:
     branches: [dev, main]
     paths:
-      - Docs/milestones.yml
+      - Planning/milestones.yml
       - .github/scripts/sync_milestones.py
       - .github/workflows/sync-milestones.yml
   workflow_dispatch:
